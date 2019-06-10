@@ -234,6 +234,10 @@ static double ToDouble(NSNumber* data) { return [FLTGoogleMapJsonConversions toD
     } else {
       result(@[ @(NO), error ]);
     }
+  }
+  else if ([call.method isEqualToString:@"map#trafficEnabled"]) {
+       [self setTrafficEnabled:[FLTGoogleMapJsonConversions toBool:call.arguments[@"trafficEnabled"]]];
+       result(nil);
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -255,6 +259,14 @@ static double ToDouble(NSNumber* data) { return [FLTGoogleMapJsonConversions toD
 
 - (void)moveWithCameraUpdate:(GMSCameraUpdate*)cameraUpdate {
   [_mapView moveCamera:cameraUpdate];
+}
+
+- (void)setTrafficEnabled:(BOOL)enabled {
+    if(enabled){
+        _mapView.trafficEnabled = YES;
+    }else{
+     _mapView.trafficEnabled = NO;
+    }
 }
 
 - (GMSCameraPosition*)cameraPosition {

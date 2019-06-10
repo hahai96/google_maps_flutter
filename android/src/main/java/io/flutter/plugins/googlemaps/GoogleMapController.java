@@ -336,6 +336,14 @@ final class GoogleMapController
           result.success(mapStyleResult);
           break;
         }
+      case "map#trafficEnabled":
+      {
+        final boolean trafficEnabled = call.argument("trafficEnabled");
+        Log.d("ádfasfa", trafficEnabled +"");
+        googleMap.setTrafficEnabled(trafficEnabled);
+        result.success(null);
+        break;
+      }
       default:
         result.notImplemented();
     }

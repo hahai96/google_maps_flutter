@@ -204,4 +204,10 @@ class GoogleMapController {
 
     return LatLngBounds(northeast: northeast, southwest: southwest);
   }
+
+   Future<void> trafficEnabled(bool trafficEnabled) async {
+    await channel.invokeMethod<void>('map#trafficEnabled', <String, bool>{
+      'trafficEnabled': trafficEnabled,
+    });
+  }
 }
