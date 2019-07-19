@@ -72,6 +72,7 @@ final class GoogleMapController
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private boolean myLocationButtonEnabled = false;
+  private boolean indoorEnabled = true;
   private boolean disposed = false;
   private final float density;
   private MethodChannel.Result mapReadyResult;
@@ -104,7 +105,7 @@ final class GoogleMapController
     this.registrarActivityHashCode = registrar.activity().hashCode();
     this.markersController = new MarkersController(methodChannel);
     this.polygonsController = new PolygonsController(methodChannel);
-    this.polylinesController = new PolylinesController(methodChannel);
+    this.polylinesController = new PolylinesController(methodChannel, density);
     this.circlesController = new CirclesController(methodChannel);
   }
 
@@ -166,6 +167,7 @@ final class GoogleMapController
   @Override
   public void onMapReady(GoogleMap googleMap) {
     this.googleMap = googleMap;
+    this.googleMap.setIndoorEnabled(this.indoorEnabled);
     googleMap.setOnInfoWindowClickListener(this);
     if (mapReadyResult != null) {
       mapReadyResult.success(null);
@@ -285,6 +287,11 @@ final class GoogleMapController
           result.success(googleMap.getUiSettings().isCompassEnabled());
           break;
         }
+      case "map#isMapToolbarEnabled":
+        {
+          result.success(googleMap.getUiSettings().isMapToolbarEnabled());
+          break;
+        }
       case "map#getMinMaxZoomLevels":
         {
           List<Float> zoomLevels = new ArrayList<>(2);
@@ -336,14 +343,14 @@ final class GoogleMapController
           result.success(mapStyleResult);
           break;
         }
-      case "map#trafficEnabled":
-      {
-        final boolean trafficEnabled = call.argument("trafficEnabled");
-        Log.d("ádfasfa", trafficEnabled +"");
-        googleMap.setTrafficEnabled(trafficEnabled);
-        result.success(null);
-        break;
-      }
+        case "map#trafficEnabled":
+        {
+            final boolean trafficEnabled = call.argument("trafficEnabled");
+            Log.d("ádfasfa", trafficEnabled +"");
+            googleMap.setTrafficEnabled(trafficEnabled);
+            result.success(null);
+            break;
+        }
       default:
         result.notImplemented();
     }
@@ -491,6 +498,11 @@ final class GoogleMapController
   }
 
   @Override
+  public void setMapToolbarEnabled(boolean mapToolbarEnabled) {
+    googleMap.getUiSettings().setMapToolbarEnabled(mapToolbarEnabled);
+  }
+
+  @Override
   public void setMapType(int mapType) {
     googleMap.setMapType(mapType);
   }
@@ -523,6 +535,17 @@ final class GoogleMapController
     }
     if (max != null) {
       googleMap.setMaxZoomPreference(max);
+    }
+  }
+
+  @Override
+  public void setPadding(float top, float left, float bottom, float right) {
+    if (googleMap != null) {
+      googleMap.setPadding(
+          (int) (left * density),
+          (int) (top * density),
+          (int) (right * density),
+          (int) (bottom * density));
     }
   }
 
@@ -631,5 +654,9 @@ final class GoogleMapController
     }
     return context.checkPermission(
         permission, android.os.Process.myPid(), android.os.Process.myUid());
+  }
+
+  public void setIndoorEnabled(boolean indoorEnabled) {
+    this.indoorEnabled = indoorEnabled;
   }
 }
